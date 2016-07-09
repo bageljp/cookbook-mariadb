@@ -1,0 +1,73 @@
+#
+# These groups are read by MariaDB server.
+# Use it for options that only the server (but not clients) should see
+#
+# See the examples of server my.cnf files in /usr/share/mysql/
+#
+
+# this is read by the standalone daemon and embedded servers
+[server]
+
+# this is only for the mysqld standalone daemon
+[mysqld]
+datadir = /var/lib/mysql
+socket = /var/lib/mysql/mysql.sock
+character-set-server = <%= node['mariadb']['character-set'] %>
+max_connections = 200
+max_allowed_packet = 16M
+general-log = 0
+general-log-file = query.log
+#slow_query_log
+long_query_time = 2
+slow_query_log_file = slow.log
+#log_queries_not_using_indexes
+
+innodb_data_home_dir = /var/lib/mysql
+#innodb_data_file_path = ibdata1:100M:autoextend
+<% case node.chef_environment -%>
+<% when "staging" -%>
+innodb_buffer_pool_size = 1024M
+<% else -%>
+innodb_buffer_pool_size = 256M
+<% end -%>
+#innodb_log_file_size = 128M
+innodb_log_buffer_size = 64M
+innodb_file_per_table = 1
+innodb_file_format = Barracuda
+innodb_flush_log_at_trx_commit = 1
+thread_cache_size = 200
+
+server-id = <%= node['mariadb']['server-id'] %>
+expire_logs_days = 7
+auto_increment_offset = <%= node['mariadb']['auto_increment_offset'] %>
+auto_increment_increment = 4
+log-bin = mysql-bin
+binlog_format = MIXED
+max_binlog_size = 1G
+#log_slave_updates
+#rpl_semi_sync_master_enabled = 1
+#rpl_semi_sync_master_timeout = 1000
+#rpl_semi_sync_slave_enabled = 1
+#plugin-load=rpl_semi_sync_master = semisync_master.so
+#plugin-load=rpl_semi_sync_slave = semisync_slave.so
+
+#ssl-ca = /etc/ssl/mysql/mysql-ca.crt
+#ssl-cert = /etc/ssl/mysql/mysql-server.crt
+#ssl-key = /etc/ssl/mysql/mysql-server.key
+
+[mysqld_safe]
+log-error=/var/lib/mysql/mysqld.log
+
+# this is only for embedded server
+[embedded]
+
+# This group is only read by MariaDB servers, not by MySQL.
+# If you use the same .cnf file for MySQL and MariaDB,
+# you can put MariaDB-only options here
+[mariadb]
+
+# This group is only read by MariaDB-10.0 servers.
+# If you use the same .cnf file for MariaDB of different versions,
+# use this group for options that older servers don't understand
+[mariadb-10.0]
+
